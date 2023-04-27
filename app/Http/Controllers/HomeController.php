@@ -23,6 +23,8 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        //disponibilita' settata di default a true
+        $availability = true;
+        return view('home', compact('availability'));
     }
 }
