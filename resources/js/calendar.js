@@ -58,17 +58,20 @@ $(function () {
                 var v = e[c].day; //assegnazione numero giorno normale
 
                 //assegnazione classe giorno normale + giorno oggi
-                //m e' il tag del div iniziale di apertura che viene aperto con la class="today" se trova la corrispondenza con la data corrente,
-                // altrimenti apre solo un tag <div>
-                let f = z(new Date(t, n - 1, v)); //prende la data di una casella da y()
-                var m = g(new Date(t, n - 1, v))
-                    ? `<div class="day today" date="${f}">`
-                    : `<div class='day' date="${f}">`; //crea il div in stringa
 
-                // console.log(m);
+                //m e' il tag del div iniziale di apertura che viene aperto con la class="today" se = a data corrente,
+                // altrimenti apre solo un tag <div>
+
+                //formattazione data per assegnazione al div
+                let f = z(new Date(t, n - 1, v));
+                ff = new Date(f).toString();
+                fff = formatDate(ff);
+
+                var m = g(new Date(t, n - 1, v))
+                    ? `<div class="day today" date="${fff}">`
+                    : `<div class='day' date="${fff}">`;
 
                 l.append(m + "" + v + "</div>"); // chiude il tag div e lo appende per intero
-                // console.log(f);
             }
         }
         // console.log(a);
@@ -110,6 +113,21 @@ $(function () {
             f.append("<div>" + s[e].substring(0, 3) + "</div>");
         }
     }
+
+    //formattazione data
+    function formatDate(date) {
+      var d = new Date(date),
+          month = '' + (d.getMonth() + 1),
+          day = '' + d.getDate(),
+          year = d.getFullYear();
+  
+      if (month.length < 2) 
+          month = '0' + month;
+      if (day.length < 2) 
+          day = '0' + day;
+  
+      return [year, month, day].join('-');
+  }
 
     //STEP #2a - [OK]
     function h() {
@@ -269,9 +287,12 @@ $(function () {
         }
     });
 
-    //script per salvare in array i giorni cliccati (solo di un mese al momento) e chiamata ajax per salvare la data
+    //salva in array i giorni cliccati (solo di un mese al momento) e chiamata ajax per salvare la data
     $(".day").on("click", function (e) {
       e.preventDefault();
+
+        //TODO
+        //FORMATTARE con 0 data cliccata -- AGGIUNGERLA AL VALUE DELLA CASELLA
 
         // console.log(e);
         let date = $(this).attr("date");
@@ -325,7 +346,7 @@ $(function () {
               break;
         }
 
-          alert(response);
+          // alert(response);
         });
 
         // switch (availability) {
