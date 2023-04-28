@@ -99,10 +99,13 @@ class AvailabilityController extends Controller
         } else {
             $availability = false;
         }
+
+        $stored_dates = Availability::select('selected_dates')->where('user_id', $user_id)->get(); //array date salvate a db
+
         //variabile per ritornare alla view i giorni salvati come non disponibili
         //variabile per ritornare alla view i giorni salvati come disponibili
-        
-        return ['availability' => $availability, 'stored_dates' => $stored_dates];
+        // dd($date);
+        return ['availability' => $availability, 'date' => $date];
     }
 
     /**

@@ -319,124 +319,44 @@ $(function () {
         }
 
         $.ajax(settings1).done(function (response) {
-          
-          switch (availability) {
+
+          response = JSON.parse(response);
+
+          switch (response.availability) {
             case true:
-                if (dates.includes(this) === false) {
-                    dates.push(this);
-                    $(this).css("background-color", "lightcoral");
+
+              console.log(response.date);
+                if (dates.includes(response.date) === false) {
+
+                    dates.push(response.date);
+                    $(`.day[date^=${response.date}]`).css("background-color", "lightcoral");
+
                 } else {
-                    dates.splice($.inArray(this, dates), 1);
-                    $(this).css("background-color", "lightgreen");
+
+                    dates.splice($.inArray(response.date, dates), 1);
+                    $(`.day[date^=${response.date}]`).css("background-color", "lightgreen");
                 }
 
                 break;
 
             case false:
-                if (dates.includes(this) === false) {
-                    dates.push(this);
-                    $(this).css("background-color", "lightgreen");
+
+              console.log(response.date);
+
+                if (dates.includes(response.date) === false) {
+                    dates.push(response.date);
+                    $(`.day[date^=${response.date}]`).css("background-color", "lightcoral");
                 } else {
-                    dates.splice($.inArray(this, dates), 1);
-                    $(this).css("background-color", "lightcoral");
+                    dates.splice($.inArray(response.date, dates), 1);
+                    $(`.day[date^=${response.date}]`).css("background-color", "lightgreen");
                 }
                 break;
 
           default:
               break;
-        }
-
-          // alert(response);
+          }
         });
 
-        // switch (availability) {
-        //   case true:
-
-
-              // $.ajax({
-              //     type: "POST",
-              //     url: "{{ route('availabilities.store') }}",
-              //     data: {
-              //         'availability' : availability,
-              //         'date' : date,
-              //     },
-              //     dataType: "json",
-              //     success: function (response) {
-              //       alert('successo');
-              //     },
-              // });
-
-        //       break;
-        //   case false:
-
-        //   default:
-        //       console.log("Errore del salvataggio al click del giorno");
-        //       break;
-        // }
-
-        //switch di prova!!
-        // switch (availability) {
-        //   case true:
-        //       if (dates.includes(this) === false) {
-        //           dates.push(this);
-        //           $(this).css("background-color", "lightcoral");
-        //       } else {
-        //           dates.splice($.inArray(this, dates), 1);
-        //           $(this).css("background-color", "lightgreen");
-        //       }
-
-        //       break;
-
-        //   case false:
-        //       if (dates.includes(this) === false) {
-        //           dates.push(this);
-        //           $(this).css("background-color", "lightgreen");
-        //       } else {
-        //           dates.splice($.inArray(this, dates), 1);
-        //           $(this).css("background-color", "lightcoral");
-        //       }
-        //       break;
-
-        //   default:
-        //       break;
-        // }
-
-        //OLD_VERSION (BEFORE SWITCH)
-        // if (dates.includes(this) === false && availability === true ) {
-
-        //   dates.push(this);
-        //   $(this).css('background-color', "lightcoral");
-        //   // this.classList.add('unavailable');
-
-        //   //chiamata ajax di salvataggio
-
-        // } else if (dates.includes(this) === true && availability === true){
-
-        //   dates.splice( $.inArray(this, dates), 1 );
-        //   $(this).css('background-color', "lightgreen");
-        //   // this.classList.add('available');
-
-        //   //chiamata ajax di update sul campo spunta
-        //   //availabilities.update
-
-        // }
-
-        // !! Devo prima prendere la data in una variabile --> Date
-
-        // $.ajax({
-        //   type: "POST",
-        //   url: "{{ route('availabilities.store') }}",
-        //   data: {
-        //     // 'availability_status' : true/false,
-        //     // 'date' : date,
-        //   },
-        //   dataType: "json",
-        //   success: function (response) {
-
-        //   }
-        // });
-
-        // console.log(this.classList.toggle('bg-primary'));
     });
 
     let days = $("#calendar_content").find(".day");
