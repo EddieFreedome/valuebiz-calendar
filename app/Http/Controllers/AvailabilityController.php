@@ -43,12 +43,13 @@ class AvailabilityController extends Controller
         $stored_dates = Availability::where('user_id', $user_id)->get(); //array date salvate a db
         $date = $request['date'];
         
-        $availability = $request['availability'];
-        
-        if ($availability === true) {
-            $availability = 1;
+        $is_available = $request['availability'];
+
+        //availability in ingresso = true, ma sara' registrata la NON disponibilita'
+        if ($is_available === 'true') {
+            $is_available = 0;
         } else {
-            $availability = 0;
+            $is_available = 1;
         }
         
         //se arriva due volte la stessa data si procede al delete (Action: click sulla stessa casella = annullamento)
@@ -77,7 +78,7 @@ class AvailabilityController extends Controller
 
                 $data->user_id = $user_id;
                 $data->selected_dates = $date;
-                $data->is_available = $availability;
+                $data->is_available = $is_available;
         
                 $data->save();
       
@@ -88,24 +89,28 @@ class AvailabilityController extends Controller
     
             $data->user_id = $user_id;
             $data->selected_dates = $date;
-            $data->is_available = $availability;
+            $data->is_available = $is_available;
     
             $data->save();
         }
 
-        //riconversione
-        if ($availability === 1) {
-            $availability = true;
+
+        //riconversione per script cambio colori 
+        //(es. si registra la non disponibilita' su una data se la variabile in ingresso e' true e viceversa)
+        
+        if ($is_available === 0) {
+            $is_available = false;
         } else {
-            $availability = false;
+            $is_available = true;
         }
+
 
         $stored_dates = Availability::select('selected_dates')->where('user_id', $user_id)->get(); //array date salvate a db
 
         //variabile per ritornare alla view i giorni salvati come non disponibili
         //variabile per ritornare alla view i giorni salvati come disponibili
         // dd($date);
-        return ['availability' => $availability, 'date' => $date];
+        return ['is_available' => $is_available, 'date' => $date];
     }
 
     /**

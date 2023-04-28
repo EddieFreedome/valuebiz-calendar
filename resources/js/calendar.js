@@ -322,7 +322,7 @@ $(function () {
 
           response = JSON.parse(response);
 
-          switch (response.availability) {
+          switch (response.is_available) {
             case true:
 
               console.log(response.date);
