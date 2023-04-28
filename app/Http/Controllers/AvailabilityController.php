@@ -62,7 +62,7 @@ class AvailabilityController extends Controller
             }
 
             if (in_array($date, $arr_stored_dates)) {
-                // dd('quo');
+
                 foreach ($stored_dates as $d) {
 
                     if ($date === $d->selected_dates) {
@@ -72,7 +72,6 @@ class AvailabilityController extends Controller
                 }
                 
             } else {
-                // dd('qua');
 
                 $data = new Availability();
 
@@ -85,7 +84,6 @@ class AvailabilityController extends Controller
             }
 
         } else {
-            // dd('fine');
             $data = new Availability();
     
             $data->user_id = $user_id;
