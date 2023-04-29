@@ -11,131 +11,206 @@ $(function () {
     // console.log(t+1); ogni volta che premo il pulsantino di increment_year
 
     function c() {
-        //STEP #1 [OK]
-        //crea giorni della settimana abbreviati nel container weekdays
-        p();
-        //-----------------------
+      //STEP #1 [OK]
+      //crea giorni della settimana abbreviati nel container weekdays
+      p();
+      //-----------------------
 
-        //STEP #2 - per ogni giorno (a partire dal primo) crea un array di oggetti unendo ogni giorno al suo nome nella settimana
-        //calcola n. totale gg in mese
-        //calcola per ogni giorno l'indice nella settimana
-        //per ogni giorno (che ha un indice) gli viene associato un nome nel giorno della settimana
-        // e = [{day:1, weekday: sabato}, ...]
+      //STEP #2 - per ogni giorno (a partire dal primo) crea un array di oggetti unendo ogni giorno al suo nome nella settimana
+      //calcola n. totale gg in mese
+      //calcola per ogni giorno l'indice nella settimana
+      //per ogni giorno (che ha un indice) gli viene associato un nome nel giorno della settimana
+      // e = [{day:1, weekday: sabato}, ...]
 
-        var e = h();
-        //-----------------------
+      var e = h();
+      //-----------------------
 
-        var r = 0;
+      var r = 0;
 
-        //booleano di controllo
-        var u = false;
+      //booleano di controllo
+      var u = false;
 
-        //svuota il container dei giorni del calendario
-        l.empty();
+      //svuota il container dei giorni del calendario
+      l.empty();
 
-        //SEZIONE PER ASSEGNARE LE CASELLE VUOTE PRIMA DEL PRIMO GIORNO DEL MESE
-        //finche' u = true
-        //se il primo giorno della settimana (domenica) e' uguale al valore della chiave weekday del primo oggetto (dell'array e)
-        //u diventa true
-        //altrimenti continua a pushare div vuoti con classe blank nel container dei giorni (l) scalando giorno (r)
+      //SEZIONE PER ASSEGNARE LE CASELLE VUOTE PRIMA DEL PRIMO GIORNO DEL MESE
+      //finche' u = true
+      //se il primo giorno della settimana (domenica) e' uguale al valore della chiave weekday del primo oggetto (dell'array e)
+      //u diventa true
+      //altrimenti continua a pushare div vuoti con classe blank nel container dei giorni (l) scalando giorno (r)
 
-        while (!u) {
-            if (s[r] == e[0].weekday) {
-                u = true;
-            } else {
-                l.append('<div class="blank"></div>');
-                r++;
-            }
-        }
-
-        //SEZIONE PER ASSEGNARE LE CASELLE VUOTE DOPO L' ULTIMO GIORNO DEL MESE
-        //(cicla su 42 caselle totali)
-        //(il primo valore di r sara' l'indice del primo giorno della settimana che trova, spostando quindi u a true)
-        //(per ciascuna casella [42 - r perche' toglie i giorni in eccesso dal totale])
-
-        //se c e' maggiore o uguale alla lunghezza dell'array di tutti i giorni del mese
-        //appendi una casella con classe vuota
-        //altrimenti il giorno corrente sara' "pieno"
-
-        for (var c = 0; c < 42 - r; c++) {
-            if (c >= e.length) {
-                l.append('<div class="blank"></div>');
-            } else {
-                var v = e[c].day; //assegnazione numero giorno normale
-
-                //assegnazione classe giorno normale + giorno oggi
-
-                //m e' il tag del div iniziale di apertura che viene aperto con la class="today" se = a data corrente,
-                // altrimenti apre solo un tag <div>
-
-                //formattazione data per assegnazione al div
-                let f = z(new Date(t, n - 1, v));
-                ff = new Date(f).toString();
-                fff = formatDate(ff);
-
-                var m = g(new Date(t, n - 1, v))
-                    ? `<div class="day today" date="${fff}">`
-                    : `<div class='day' date="${fff}">`;
-
-                l.append(m + "" + v + "</div>"); // chiude il tag div e lo appende per intero
-            }
-        }
-        // console.log(a);
-
-        //CSS HEADER
-        var y = o[n - 1];
-        a.css("background-color", y)
-            .find("h1")
-            .text(i[n - 1] + " " + t);
-        f.find("div").css("color", y);
-
-
-        //CSS DAY
-
-        //se a db ci sono registrati solo giorni della disponibilita' (quindi l'utente e' mai disponibile),
-        //colora le caselle di rosso, altrimenti di verde
-
-        let avCheck = identical(storedDates);
-
-        if (avCheck === false) {
-          
-          l.find(".day")
-          .css("color", "#f8f8f8")
-          .css("background-color", "lightcoral")
-          .css("border", `1px solid ${y}`);
-
-        } else {
-
-          l.find(".day")
-          .css("color", "787878")
-          .css("background-color", "lightgreen")
-          .css("border", `1px solid ${y}`);
-
-        }
-        
-        //sovrascrive il colore di default:
-        //per ogni day salvato a db, prendere l'elemento html con date = day e cambiarlo di colore
-        for (let i = 0; i < storedDates.length; i++) {
-
-          const day = storedDates[i].selected_dates;
-          
-          //se le date sono registrate disponibili (1) a db, vuol dire che l'utente non e' MAI DISPONIBILE.
-          //caselle di verdi, altrimenti caselle rosse
-          
-          if (storedDates[i].is_available === 1) {
-            $(`.day[date^=${day}]`).css("background-color", "lightgreen");
-            
+      while (!u) {
+          if (s[r] == e[0].weekday) {
+              u = true;
           } else {
-            $(`.day[date^=${day}]`).css("background-color", "lightcoral");
+              l.append('<div class="blank"></div>');
+              r++;
+          }
+      }
+
+      //SEZIONE PER ASSEGNARE LE CASELLE VUOTE DOPO L' ULTIMO GIORNO DEL MESE
+      //(cicla su 42 caselle totali)
+      //(il primo valore di r sara' l'indice del primo giorno della settimana che trova, spostando quindi u a true)
+      //(per ciascuna casella [42 - r perche' toglie i giorni in eccesso dal totale])
+
+      //se c e' maggiore o uguale alla lunghezza dell'array di tutti i giorni del mese
+      //appendi una casella con classe vuota
+      //altrimenti il giorno corrente sara' "pieno"
+
+      for (var c = 0; c < 42 - r; c++) {
+          if (c >= e.length) {
+              l.append('<div class="blank"></div>');
+          } else {
+              var v = e[c].day; //assegnazione numero giorno normale
+
+              //assegnazione classe giorno normale + giorno oggi
+
+              //m e' il tag del div iniziale di apertura che viene aperto con la class="today" se = a data corrente,
+              // altrimenti apre solo un tag <div>
+
+              //formattazione data per assegnazione al div
+              let f = z(new Date(t, n - 1, v));
+              ff = new Date(f).toString();
+              fff = formatDate(ff);
+
+              var m = g(new Date(t, n - 1, v))
+                  ? `<div class="day today" date="${fff}">`
+                  : `<div class='day' date="${fff}">`;
+
+              l.append(m + "" + v + "</div>"); // chiude il tag div e lo appende per intero
+          }
+      }
+      // console.log(a);
+
+      //CSS HEADER
+      var y = o[n - 1];
+      a.css("background-color", y)
+          .find("h1")
+          .text(i[n - 1] + " " + t);
+      f.find("div").css("color", y);
+
+
+      //CSS DAY
+
+      //se a db ci sono registrati solo giorni della disponibilita' (quindi l'utente e' mai disponibile),
+      //colora le caselle di rosso, altrimenti di verde
+
+      let avCheck = identical(storedDates);
+
+      if (avCheck === false) {
+        
+        l.find(".day")
+        .css("color", "#f8f8f8")
+        .css("background-color", "lightcoral")
+        .css("border", `1px solid ${y}`);
+
+      } else {
+
+        l.find(".day")
+        .css("color", "787878")
+        .css("background-color", "lightgreen")
+        .css("border", `1px solid ${y}`);
+
+      }
+      
+      //sovrascrive il colore di default:
+      //per ogni day salvato a db, prendere l'elemento html con date = day e cambiarlo di colore
+      console.log(storedDates);
+      for (let i = 0; i < storedDates.length; i++) {
+
+        const day = storedDates[i].selected_dates;
+        
+        //se le date sono registrate disponibili (1) a db, vuol dire che l'utente non e' MAI DISPONIBILE.
+        //caselle di verdi, altrimenti caselle rosse
+        
+        if (storedDates[i].is_available === 1) {
+          $(`.day[date^=${day}]`).css("background-color", "lightgreen");
+          
+        } else {
+          $(`.day[date^=${day}]`).css("background-color", "lightcoral");
+        }
+
+      }
+
+      //stile bordato per identificare visivamente il giorno corrente
+      l.find(".today")
+          .css("border", `6px solid ${y}`)
+          .css("color", "#787878");
+      d();
+
+
+        //salva in array i giorni cliccati (solo di un mese al momento) e chiamata ajax per salvare la data
+      $(".day").on("click", function (e) {
+        e.preventDefault();
+
+          //TODO
+          //FORMATTARE con 0 data cliccata -- AGGIUNGERLA AL VALUE DELLA CASELLA
+
+          // console.log(e);
+          let date = $(this).attr("date");
+
+          //CHIAMATA AJAX
+          // Cambio CSS se Success AJAX
+
+          var form = new FormData();
+          form.append("availability", availability);
+          form.append("date", date);
+
+          var settings1 = {
+            "method": "POST",
+            "url": "/store",
+            "timeout": 0,
+            "headers": {
+            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
+            },
+            "processData": false,
+            "mimeType": "multipart/form-data",
+            "contentType": false,
+            "data": form
+
           }
 
-        }
+          $.ajax(settings1).done(function (response) {
 
-        //stile bordato per identificare visivamente il giorno corrente
-        l.find(".today")
-            .css("border", `6px solid ${y}`)
-            .css("color", "#787878");
-        d();
+            response = JSON.parse(response);
+
+            switch (response.is_available) {
+              case true:
+
+                if ( $(`.day[date^=${response.date}]`).css("background-color") === "lightcoral") {
+
+                  $(`.day[date^=${response.date}]`).css("background-color", "lightgreen");
+
+                } else {
+
+                  $(`.day[date^=${response.date}]`).css("background-color", "lightcoral");
+                
+                }
+
+                break;
+
+              case false:
+
+                //mettere valore rgb perche' come stringa non lo prende..... (colore: lightcoral)
+                if ( $(`.day[date^=${response.date}]`).css("background-color") === "rgb(240, 128, 128)" ) {
+                      
+                  $(`.day[date^=${response.date}]`).css("background-color", "lightgreen");
+                  
+                } else {
+
+                  $(`.day[date^=${response.date}]`).css("background-color", "lightcoral");
+                }
+    
+              break;
+
+            default:
+                break;
+            }
+            
+          });
+
+      });
+
     }
 
     //STEP #1a [OK] (viene invocala all'inizio del codice) - Crea giorni della settimana
@@ -333,77 +408,6 @@ $(function () {
         }
     });
 
-    //salva in array i giorni cliccati (solo di un mese al momento) e chiamata ajax per salvare la data
-    $(".day").on("click", function (e) {
-      e.preventDefault();
-
-        //TODO
-        //FORMATTARE con 0 data cliccata -- AGGIUNGERLA AL VALUE DELLA CASELLA
-
-        // console.log(e);
-        let date = $(this).attr("date");
-
-        //CHIAMATA AJAX
-        // Cambio CSS se Success AJAX
-
-        var form = new FormData();
-        form.append("availability", availability);
-        form.append("date", date);
-
-        var settings1 = {
-          "method": "POST",
-          "url": "/store",
-          "timeout": 0,
-          "headers": {
-          "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
-          },
-          "processData": false,
-          "mimeType": "multipart/form-data",
-          "contentType": false,
-          "data": form
-
-        }
-
-        $.ajax(settings1).done(function (response) {
-
-          response = JSON.parse(response);
-
-          switch (response.is_available) {
-            case true:
-
-              if ( $(`.day[date^=${response.date}]`).css("background-color") === "lightcoral") {
-
-                $(`.day[date^=${response.date}]`).css("background-color", "lightgreen");
-
-              } else {
-
-                $(`.day[date^=${response.date}]`).css("background-color", "lightcoral");
-              
-              }
-
-              break;
-
-            case false:
-
-              //mettere valore rgb perche' come stringa non lo prende..... (colore: lightcoral)
-              if ( $(`.day[date^=${response.date}]`).css("background-color") === "rgb(240, 128, 128)" ) {
-                    
-                $(`.day[date^=${response.date}]`).css("background-color", "lightgreen");
-                
-              } else {
-
-                $(`.day[date^=${response.date}]`).css("background-color", "lightcoral");
-              }
-  
-            break;
-
-          default:
-              break;
-          }
-          
-        });
-
-    });
 
     let days = $("#calendar_content").find(".day");
 
