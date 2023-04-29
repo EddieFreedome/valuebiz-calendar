@@ -49713,7 +49713,7 @@ var _require = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jqu
 var _require2 = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js"),
   intersection = _require2.intersection;
 $(function () {
-  var availability = true; //default sempre disponibile
+  var availability = window.availability = true; //default sempre disponibile
   // let storedDates = $('#stored_dates');
 
   //per cambiare anno devo cambiare la variabile t
@@ -49785,7 +49785,6 @@ $(function () {
         l.append(m + "" + v + "</div>"); // chiude il tag div e lo appende per intero
       }
     }
-    // console.log(a);
 
     //CSS HEADER
     var y = o[n - 1];
@@ -49796,8 +49795,19 @@ $(function () {
 
     //se a db ci sono registrati solo giorni della disponibilita' (quindi l'utente e' mai disponibile),
     //colora le caselle di rosso, altrimenti di verde
+    // console.log(storedDates);
+    // console.log(dates);
+    //creare oggetto dates da passare al cambio specifico css
 
+    // let intersectionDates = storedDates.map(x => x.selected_dates).filter(x => !dates.includes(x)).concat(dates.filter(x => !storedDates.includes(x)));
+    var intersectionDates = storedDates.filter(function (x) {
+      return !dates.includes(x);
+    }).concat(dates.filter(function (x) {
+      return !storedDates.includes(x);
+    }));
     var avCheck = identical(storedDates);
+
+    //colore default globale dei giorni non selezionati
     if (avCheck === false) {
       l.find(".day").css("color", "#f8f8f8").css("background-color", "lightcoral").css("border", "1px solid ".concat(y));
     } else {
@@ -49806,13 +49816,13 @@ $(function () {
 
     //sovrascrive il colore di default:
     //per ogni day salvato a db, prendere l'elemento html con date = day e cambiarlo di colore
-    for (var _i = 0; _i < storedDates.length; _i++) {
-      var day = storedDates[_i].selected_dates;
+    for (var _i = 0; _i < intersectionDates.length; _i++) {
+      var day = intersectionDates[_i].selected_dates;
 
       //se le date sono registrate disponibili (1) a db, vuol dire che l'utente non e' MAI DISPONIBILE.
       //caselle di verdi, altrimenti caselle rosse
 
-      if (storedDates[_i].is_available === 1) {
+      if (intersectionDates[_i].is_available === 1) {
         $(".day[date^=".concat(day, "]")).css("background-color", "lightgreen");
       } else {
         $(".day[date^=".concat(day, "]")).css("background-color", "lightcoral");
@@ -49822,6 +49832,64 @@ $(function () {
     //stile bordato per identificare visivamente il giorno corrente
     l.find(".today").css("border", "6px solid ".concat(y)).css("color", "#787878");
     d();
+
+    //ONCLICK Salva in array i giorni cliccati e chiamata ajax per salvare la data
+    $(".day").on("click", function (e) {
+      e.preventDefault();
+
+      //date da pushare in un array statico (come oggetto) per colorare le caselle al cambio mese (solo front)
+      var extDate = {
+        "selected_dates": $(this).attr("date"),
+        "is_available": !availability === false ? 0 : 1
+      };
+      var objDate = new Object(extDate);
+      console.log(objDate);
+      dates.push(objDate);
+
+      //date interna da usare
+      var date = $(this).attr("date");
+
+      //CHIAMATA AJAX
+      // Cambio CSS se Success AJAX
+
+      var form = new FormData();
+      form.append("availability", availability);
+      form.append("date", date);
+      var settings1 = {
+        "method": "POST",
+        "url": "/store",
+        "timeout": 0,
+        "headers": {
+          "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
+        },
+        "processData": false,
+        "mimeType": "multipart/form-data",
+        "contentType": false,
+        "data": form
+      };
+      $.ajax(settings1).done(function (response) {
+        response = JSON.parse(response);
+        switch (response.is_available) {
+          case true:
+            if ($(".day[date^=".concat(response.date, "]")).css("background-color") === "lightcoral") {
+              $(".day[date^=".concat(response.date, "]")).css("background-color", "lightgreen");
+            } else {
+              $(".day[date^=".concat(response.date, "]")).css("background-color", "lightcoral");
+            }
+            break;
+          case false:
+            //mettere valore rgb perche' come stringa non lo prende..... (colore: lightcoral)
+            if ($(".day[date^=".concat(response.date, "]")).css("background-color") === "rgb(240, 128, 128)") {
+              $(".day[date^=".concat(response.date, "]")).css("background-color", "lightgreen");
+            } else {
+              $(".day[date^=".concat(response.date, "]")).css("background-color", "lightcoral");
+            }
+            break;
+          default:
+            break;
+        }
+      });
+    });
   }
 
   //STEP #1a [OK] (viene invocala all'inizio del codice) - Crea giorni della settimana
@@ -49836,7 +49904,8 @@ $(function () {
   }
 
   //UTILITIES FUNCTIONS:
-  //check per colori caselle predefiniti e specifici 
+  //check per colori caselle predefiniti e specifici:
+  //FALSE se ogni elemento dell'array in ingresso e' diverso dal successivo e la sua disponibilita' e' 1 
   function identical(array) {
     for (var i = 0; i < array.length - 1; i++) {
       if (array[i] !== array[i + 1] && array[i].is_available !== 0) {
@@ -49971,58 +50040,6 @@ $(function () {
     } else {
       r("next");
     }
-  });
-
-  //salva in array i giorni cliccati (solo di un mese al momento) e chiamata ajax per salvare la data
-  $(".day").on("click", function (e) {
-    e.preventDefault();
-
-    //TODO
-    //FORMATTARE con 0 data cliccata -- AGGIUNGERLA AL VALUE DELLA CASELLA
-
-    // console.log(e);
-    var date = $(this).attr("date");
-
-    //CHIAMATA AJAX
-    // Cambio CSS se Success AJAX
-
-    var form = new FormData();
-    form.append("availability", availability);
-    form.append("date", date);
-    var settings1 = {
-      "method": "POST",
-      "url": "/store",
-      "timeout": 0,
-      "headers": {
-        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
-      },
-      "processData": false,
-      "mimeType": "multipart/form-data",
-      "contentType": false,
-      "data": form
-    };
-    $.ajax(settings1).done(function (response) {
-      response = JSON.parse(response);
-      switch (response.is_available) {
-        case true:
-          if ($(".day[date^=".concat(response.date, "]")).css("background-color") === "lightcoral") {
-            $(".day[date^=".concat(response.date, "]")).css("background-color", "lightgreen");
-          } else {
-            $(".day[date^=".concat(response.date, "]")).css("background-color", "lightcoral");
-          }
-          break;
-        case false:
-          //mettere valore rgb perche' come stringa non lo prende..... (colore: lightcoral)
-          if ($(".day[date^=".concat(response.date, "]")).css("background-color") === "rgb(240, 128, 128)") {
-            $(".day[date^=".concat(response.date, "]")).css("background-color", "lightgreen");
-          } else {
-            $(".day[date^=".concat(response.date, "]")).css("background-color", "lightcoral");
-          }
-          break;
-        default:
-          break;
-      }
-    });
   });
   var days = $("#calendar_content").find(".day");
   $("#available").on("click", function () {

@@ -3,7 +3,7 @@ const { intersection } = require("lodash");
 
 $(function () {
     
-    let availability = true; //default sempre disponibile
+  let availability = window.availability = true; //default sempre disponibile
     // let storedDates = $('#stored_dates');
 
 
@@ -80,8 +80,7 @@ $(function () {
               l.append(m + "" + v + "</div>"); // chiude il tag div e lo appende per intero
           }
       }
-      // console.log(a);
-
+      
       //CSS HEADER
       var y = o[n - 1];
       a.css("background-color", y)
@@ -94,9 +93,16 @@ $(function () {
 
       //se a db ci sono registrati solo giorni della disponibilita' (quindi l'utente e' mai disponibile),
       //colora le caselle di rosso, altrimenti di verde
+      // console.log(storedDates);
+      // console.log(dates);
+      //creare oggetto dates da passare al cambio specifico css
 
+      // let intersectionDates = storedDates.map(x => x.selected_dates).filter(x => !dates.includes(x)).concat(dates.filter(x => !storedDates.includes(x)));
+      let intersectionDates = storedDates.filter(x => !dates.includes(x)).concat(dates.filter(x => !storedDates.includes(x)));
+      
       let avCheck = identical(storedDates);
 
+      //colore default globale dei giorni non selezionati
       if (avCheck === false) {
         
         l.find(".day")
@@ -115,18 +121,19 @@ $(function () {
       
       //sovrascrive il colore di default:
       //per ogni day salvato a db, prendere l'elemento html con date = day e cambiarlo di colore
-      console.log(storedDates);
-      for (let i = 0; i < storedDates.length; i++) {
-
-        const day = storedDates[i].selected_dates;
+      for (let i = 0; i < intersectionDates.length; i++) {
+        
+        const day = intersectionDates[i].selected_dates;
         
         //se le date sono registrate disponibili (1) a db, vuol dire che l'utente non e' MAI DISPONIBILE.
         //caselle di verdi, altrimenti caselle rosse
         
-        if (storedDates[i].is_available === 1) {
+        if (intersectionDates[i].is_available === 1) {
+
           $(`.day[date^=${day}]`).css("background-color", "lightgreen");
           
         } else {
+
           $(`.day[date^=${day}]`).css("background-color", "lightcoral");
         }
 
@@ -139,16 +146,26 @@ $(function () {
       d();
 
 
-        //salva in array i giorni cliccati (solo di un mese al momento) e chiamata ajax per salvare la data
+
+
+
+      //ONCLICK Salva in array i giorni cliccati e chiamata ajax per salvare la data
       $(".day").on("click", function (e) {
         e.preventDefault();
 
-          //TODO
-          //FORMATTARE con 0 data cliccata -- AGGIUNGERLA AL VALUE DELLA CASELLA
-
-          // console.log(e);
+          //date da pushare in un array statico (come oggetto) per colorare le caselle al cambio mese (solo front)
+          const extDate = {
+            "selected_dates" : $(this).attr("date"),
+            "is_available" : !availability === false ? 0 : 1,
+          }
+          const objDate = new Object(extDate);
+          console.log(objDate);
+          dates.push(objDate);
+          
+          //date interna da usare
           let date = $(this).attr("date");
-
+          
+          
           //CHIAMATA AJAX
           // Cambio CSS se Success AJAX
 
@@ -226,7 +243,8 @@ $(function () {
 
 
     //UTILITIES FUNCTIONS:
-    //check per colori caselle predefiniti e specifici 
+    //check per colori caselle predefiniti e specifici:
+    //FALSE se ogni elemento dell'array in ingresso e' diverso dal successivo e la sua disponibilita' e' 1 
     function identical(array) {
       for(var i = 0; i < array.length - 1; i++) {
           if(array[i] !== array[i+1] && array[i].is_available !== 0) {
@@ -388,6 +406,7 @@ $(function () {
     //al click delle chevron
     a.find('i[class^="icon-chevron"]').on("click", function () {
         var e = $(this);
+        
         var r = function (e) {
             n = e == "next" ? n + 1 : n - 1;
 
@@ -401,6 +420,8 @@ $(function () {
             }
             c();
         };
+
+
         if (e.attr("class").indexOf("left") != -1) {
             r("previous");
         } else {
