@@ -53,8 +53,7 @@ class AvailabilityController extends Controller
         }
         
         //se arriva due volte la stessa data si procede al delete (Action: click sulla stessa casella = annullamento)
-        
-        
+
         if (count($stored_dates) > 0) { //salvataggio
             $arr_stored_dates = [];
 
@@ -97,7 +96,7 @@ class AvailabilityController extends Controller
 
         //riconversione per script cambio colori 
         //(es. si registra la non disponibilita' su una data se la variabile in ingresso e' true e viceversa)
-        
+
         if ($is_available === 0) {
             $is_available = false;
         } else {
@@ -110,7 +109,7 @@ class AvailabilityController extends Controller
         //variabile per ritornare alla view i giorni salvati come non disponibili
         //variabile per ritornare alla view i giorni salvati come disponibili
         // dd($date);
-        return ['is_available' => $is_available, 'date' => $date];
+        return ['is_available' => $is_available, 'date' => $date, 'stored_dates' => $stored_dates];
     }
 
     /**

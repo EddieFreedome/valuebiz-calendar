@@ -49834,6 +49834,9 @@ $(function () {
       f.append("<div>" + s[e].substring(0, 3) + "</div>");
     }
   }
+
+  //UTILITIES FUNCTIONS:
+  //check per colori caselle predefiniti e specifici 
   function identical(array) {
     for (var i = 0; i < array.length - 1; i++) {
       if (array[i] !== array[i + 1] && array[i].is_available !== 0) {
@@ -49842,7 +49845,6 @@ $(function () {
     }
     return true;
   }
-
   //formattazione data
   function formatDate(date) {
     var d = new Date(date),
@@ -50003,23 +50005,18 @@ $(function () {
       response = JSON.parse(response);
       switch (response.is_available) {
         case true:
-          console.log(response.date);
-          if (dates.includes(response.date) === false) {
-            dates.push(response.date);
-            $(".day[date^=".concat(response.date, "]")).css("background-color", "lightcoral");
-          } else {
-            dates.splice($.inArray(response.date, dates), 1);
+          if ($(".day[date^=".concat(response.date, "]")).css("background-color") === "lightcoral") {
             $(".day[date^=".concat(response.date, "]")).css("background-color", "lightgreen");
+          } else {
+            $(".day[date^=".concat(response.date, "]")).css("background-color", "lightcoral");
           }
           break;
         case false:
-          console.log(response.date);
-          if (dates.includes(response.date) === false) {
-            dates.push(response.date);
-            $(".day[date^=".concat(response.date, "]")).css("background-color", "lightcoral");
-          } else {
-            dates.splice($.inArray(response.date, dates), 1);
+          //mettere valore rgb perche' come stringa non lo prende..... (colore: lightcoral)
+          if ($(".day[date^=".concat(response.date, "]")).css("background-color") === "rgb(240, 128, 128)") {
             $(".day[date^=".concat(response.date, "]")).css("background-color", "lightgreen");
+          } else {
+            $(".day[date^=".concat(response.date, "]")).css("background-color", "lightcoral");
           }
           break;
         default:
