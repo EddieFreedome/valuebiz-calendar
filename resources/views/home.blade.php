@@ -21,6 +21,8 @@
         </div>
     </div>
 </div> --}}
+{{-- @dd($stored_dates) --}}
+
     <div id="switch-container" class="d-flex justify-content-center pb-4">
         <div id="available" class="">SEMPRE DISPONIBILE</div>
         <div id="unavailable" class="">MAI DISPONIBILE</div>
@@ -46,5 +48,8 @@
 
 
         })
+    </script>
+    <script>
+        var storedDates = @json($stored_dates);
     </script>
 @endpush

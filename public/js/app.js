@@ -49705,10 +49705,16 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
   !*** ./resources/js/calendar.js ***!
   \**********************************/
 /*! no static exports found */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
+var _require = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js"),
+  inArray = _require.inArray,
+  each = _require.each;
+var _require2 = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js"),
+  intersection = _require2.intersection;
 $(function () {
   var availability = true; //default sempre disponibile
+  // let storedDates = $('#stored_dates');
 
   //per cambiare anno devo cambiare la variabile t
   // console.log(t+1); ogni volta che premo il pulsantino di increment_year
@@ -49781,18 +49787,40 @@ $(function () {
     }
     // console.log(a);
 
-    //CAMBIO CSS HEADER
+    //CSS HEADER
     var y = o[n - 1];
     a.css("background-color", y).find("h1").text(i[n - 1] + " " + t);
     f.find("div").css("color", y);
 
-    //CAMBIO CSS DAY ,
-    if (availability === true) {
-      l.find(".day").css("color", "787878").css("background-color", "lightgreen").css("border", "1px solid ".concat(y));
-    } else {
+    //CSS DAY
+
+    //se a db ci sono registrati solo giorni della disponibilita' (quindi l'utente e' mai disponibile),
+    //colora le caselle di rosso, altrimenti di verde
+
+    var avCheck = identical(storedDates);
+    if (avCheck === false) {
       l.find(".day").css("color", "#f8f8f8").css("background-color", "lightcoral").css("border", "1px solid ".concat(y));
+    } else {
+      l.find(".day").css("color", "787878").css("background-color", "lightgreen").css("border", "1px solid ".concat(y));
     }
-    l.find(".today").css("background-color", "lightgreen").css("border", "6px solid ".concat(y)).css("color", "#787878");
+
+    //sovrascrive il colore di default:
+    //per ogni day salvato a db, prendere l'elemento html con date = day e cambiarlo di colore
+    for (var _i = 0; _i < storedDates.length; _i++) {
+      var day = storedDates[_i].selected_dates;
+
+      //se le date sono registrate disponibili (1) a db, vuol dire che l'utente non e' MAI DISPONIBILE.
+      //caselle di verdi, altrimenti caselle rosse
+
+      if (storedDates[_i].is_available === 1) {
+        $(".day[date^=".concat(day, "]")).css("background-color", "lightgreen");
+      } else {
+        $(".day[date^=".concat(day, "]")).css("background-color", "lightcoral");
+      }
+    }
+
+    //stile bordato per identificare visivamente il giorno corrente
+    l.find(".today").css("border", "6px solid ".concat(y)).css("color", "#787878");
     d();
   }
 
@@ -49805,6 +49833,14 @@ $(function () {
     for (var e = 0; e < 7; e++) {
       f.append("<div>" + s[e].substring(0, 3) + "</div>");
     }
+  }
+  function identical(array) {
+    for (var i = 0; i < array.length - 1; i++) {
+      if (array[i] !== array[i + 1] && array[i].is_available !== 0) {
+        return false;
+      }
+    }
+    return true;
   }
 
   //formattazione data
@@ -49964,121 +50000,33 @@ $(function () {
       "data": form
     };
     $.ajax(settings1).done(function (response) {
-      switch (availability) {
+      response = JSON.parse(response);
+      switch (response.is_available) {
         case true:
-          if (dates.includes(this) === false) {
-            dates.push(this);
-            $(this).css("background-color", "lightcoral");
+          console.log(response.date);
+          if (dates.includes(response.date) === false) {
+            dates.push(response.date);
+            $(".day[date^=".concat(response.date, "]")).css("background-color", "lightcoral");
           } else {
-            dates.splice($.inArray(this, dates), 1);
-            $(this).css("background-color", "lightgreen");
+            dates.splice($.inArray(response.date, dates), 1);
+            $(".day[date^=".concat(response.date, "]")).css("background-color", "lightgreen");
           }
           break;
         case false:
-          if (dates.includes(this) === false) {
-            dates.push(this);
-            $(this).css("background-color", "lightgreen");
+          console.log(response.date);
+          if (dates.includes(response.date) === false) {
+            dates.push(response.date);
+            $(".day[date^=".concat(response.date, "]")).css("background-color", "lightcoral");
           } else {
-            dates.splice($.inArray(this, dates), 1);
-            $(this).css("background-color", "lightcoral");
+            dates.splice($.inArray(response.date, dates), 1);
+            $(".day[date^=".concat(response.date, "]")).css("background-color", "lightgreen");
           }
           break;
         default:
           break;
       }
-
-      // alert(response);
     });
-
-    // switch (availability) {
-    //   case true:
-
-    // $.ajax({
-    //     type: "POST",
-    //     url: "{{ route('availabilities.store') }}",
-    //     data: {
-    //         'availability' : availability,
-    //         'date' : date,
-    //     },
-    //     dataType: "json",
-    //     success: function (response) {
-    //       alert('successo');
-    //     },
-    // });
-
-    //       break;
-    //   case false:
-
-    //   default:
-    //       console.log("Errore del salvataggio al click del giorno");
-    //       break;
-    // }
-
-    //switch di prova!!
-    // switch (availability) {
-    //   case true:
-    //       if (dates.includes(this) === false) {
-    //           dates.push(this);
-    //           $(this).css("background-color", "lightcoral");
-    //       } else {
-    //           dates.splice($.inArray(this, dates), 1);
-    //           $(this).css("background-color", "lightgreen");
-    //       }
-
-    //       break;
-
-    //   case false:
-    //       if (dates.includes(this) === false) {
-    //           dates.push(this);
-    //           $(this).css("background-color", "lightgreen");
-    //       } else {
-    //           dates.splice($.inArray(this, dates), 1);
-    //           $(this).css("background-color", "lightcoral");
-    //       }
-    //       break;
-
-    //   default:
-    //       break;
-    // }
-
-    //OLD_VERSION (BEFORE SWITCH)
-    // if (dates.includes(this) === false && availability === true ) {
-
-    //   dates.push(this);
-    //   $(this).css('background-color', "lightcoral");
-    //   // this.classList.add('unavailable');
-
-    //   //chiamata ajax di salvataggio
-
-    // } else if (dates.includes(this) === true && availability === true){
-
-    //   dates.splice( $.inArray(this, dates), 1 );
-    //   $(this).css('background-color', "lightgreen");
-    //   // this.classList.add('available');
-
-    //   //chiamata ajax di update sul campo spunta
-    //   //availabilities.update
-
-    // }
-
-    // !! Devo prima prendere la data in una variabile --> Date
-
-    // $.ajax({
-    //   type: "POST",
-    //   url: "{{ route('availabilities.store') }}",
-    //   data: {
-    //     // 'availability_status' : true/false,
-    //     // 'date' : date,
-    //   },
-    //   dataType: "json",
-    //   success: function (response) {
-
-    //   }
-    // });
-
-    // console.log(this.classList.toggle('bg-primary'));
   });
-
   var days = $("#calendar_content").find(".day");
   $("#available").on("click", function () {
     availability = true;

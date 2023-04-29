@@ -1,5 +1,11 @@
+const { inArray, each } = require("jquery");
+const { intersection } = require("lodash");
+
 $(function () {
+    
     let availability = true; //default sempre disponibile
+    // let storedDates = $('#stored_dates');
+
 
     //per cambiare anno devo cambiare la variabile t
     // console.log(t+1); ogni volta che premo il pulsantino di increment_year
@@ -76,28 +82,57 @@ $(function () {
         }
         // console.log(a);
 
-        //CAMBIO CSS HEADER
+        //CSS HEADER
         var y = o[n - 1];
         a.css("background-color", y)
             .find("h1")
             .text(i[n - 1] + " " + t);
         f.find("div").css("color", y);
 
-        //CAMBIO CSS DAY ,
-        if (availability === true) {
-            l.find(".day")
-                .css("color", "787878")
-                .css("background-color", "lightgreen")
-                .css("border", `1px solid ${y}`);
+
+        //CSS DAY
+
+        //se a db ci sono registrati solo giorni della disponibilita' (quindi l'utente e' mai disponibile),
+        //colora le caselle di rosso, altrimenti di verde
+
+        let avCheck = identical(storedDates);
+
+        if (avCheck === false) {
+          
+          l.find(".day")
+          .css("color", "#f8f8f8")
+          .css("background-color", "lightcoral")
+          .css("border", `1px solid ${y}`);
+
         } else {
-            l.find(".day")
-                .css("color", "#f8f8f8")
-                .css("background-color", "lightcoral")
-                .css("border", `1px solid ${y}`);
+
+          l.find(".day")
+          .css("color", "787878")
+          .css("background-color", "lightgreen")
+          .css("border", `1px solid ${y}`);
+
+        }
+        
+        //sovrascrive il colore di default:
+        //per ogni day salvato a db, prendere l'elemento html con date = day e cambiarlo di colore
+        for (let i = 0; i < storedDates.length; i++) {
+
+          const day = storedDates[i].selected_dates;
+          
+          //se le date sono registrate disponibili (1) a db, vuol dire che l'utente non e' MAI DISPONIBILE.
+          //caselle di verdi, altrimenti caselle rosse
+          
+          if (storedDates[i].is_available === 1) {
+            $(`.day[date^=${day}]`).css("background-color", "lightgreen");
+            
+          } else {
+            $(`.day[date^=${day}]`).css("background-color", "lightcoral");
+          }
+
         }
 
+        //stile bordato per identificare visivamente il giorno corrente
         l.find(".today")
-            .css("background-color", "lightgreen")
             .css("border", `6px solid ${y}`)
             .css("color", "#787878");
         d();
@@ -113,6 +148,17 @@ $(function () {
             f.append("<div>" + s[e].substring(0, 3) + "</div>");
         }
     }
+
+
+    function identical(array) {
+      for(var i = 0; i < array.length - 1; i++) {
+          if(array[i] !== array[i+1] && array[i].is_available !== 0) {
+              return false;
+          }
+      }
+      return true;
+    }
+  
 
     //formattazione data
     function formatDate(date) {
