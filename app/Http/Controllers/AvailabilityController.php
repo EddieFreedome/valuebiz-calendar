@@ -93,22 +93,16 @@ class AvailabilityController extends Controller
             $data->save();
         }
 
-
         //riconversione per script cambio colori 
         //(es. si registra la non disponibilita' su una data se la variabile in ingresso e' true e viceversa)
-
         if ($is_available === 0) {
             $is_available = false;
         } else {
             $is_available = true;
         }
 
+        $stored_dates = Availability::select('selected_dates', 'is_available')->where('user_id', $user_id)->get(); //array date salvate a db
 
-        $stored_dates = Availability::select('selected_dates')->where('user_id', $user_id)->get(); //array date salvate a db
-
-        //variabile per ritornare alla view i giorni salvati come non disponibili
-        //variabile per ritornare alla view i giorni salvati come disponibili
-        // dd($date);
         return ['is_available' => $is_available, 'date' => $date, 'stored_dates' => $stored_dates];
     }
 

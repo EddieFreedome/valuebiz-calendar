@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Route;
 // Route::group(['middleware' => ['auth']], function () { 
     Auth::routes();
     Route::post('/store', 'AvailabilityController@store');
+    Route::delete('/delete', 'AvailabilityController@destroy');
     Route::resource('availabilities', 'AvailabilityController');
     Route::get('/home', 'HomeController@index')->name('home');
 // });

@@ -4,8 +4,9 @@ const { intersection } = require("lodash");
 $(function () {
     
   let availability = window.availability = true; //default sempre disponibile
+  let storedDates = window.storedDates; //default sempre disponibile
     // let storedDates = $('#stored_dates');
-
+  console.log(storedDates);
 
     //per cambiare anno devo cambiare la variabile t
     // console.log(t+1); ogni volta che premo il pulsantino di increment_year
@@ -89,19 +90,17 @@ $(function () {
       f.find("div").css("color", y);
 
 
-      //CSS DAY
+      
 
       //se a db ci sono registrati solo giorni della disponibilita' (quindi l'utente e' mai disponibile),
       //colora le caselle di rosso, altrimenti di verde
-      // console.log(storedDates);
-      // console.log(dates);
-      //creare oggetto dates da passare al cambio specifico css
-
-      // let intersectionDates = storedDates.map(x => x.selected_dates).filter(x => !dates.includes(x)).concat(dates.filter(x => !storedDates.includes(x)));
-      let intersectionDates = storedDates.filter(x => !dates.includes(x)).concat(dates.filter(x => !storedDates.includes(x)));
       
-      let avCheck = identical(storedDates);
+      // let intersectionDates = storedDates.map(x => x.selected_dates).filter(x => !dates.includes(x)).concat(dates.filter(x => !storedDates.includes(x)));
+      //join di due array aggiungendo solo le differenze
+      // let intersectionDates = storedDates.filter(x => !dates.includes(x)).concat(dates.filter(x => !storedDates.includes(x)));
 
+      let avCheck = identical(storedDates);
+      //CSS DAY
       //colore default globale dei giorni non selezionati
       if (avCheck === false) {
         
@@ -121,14 +120,14 @@ $(function () {
       
       //sovrascrive il colore di default:
       //per ogni day salvato a db, prendere l'elemento html con date = day e cambiarlo di colore
-      for (let i = 0; i < intersectionDates.length; i++) {
+      for (let i = 0; i < storedDates.length; i++) {
         
-        const day = intersectionDates[i].selected_dates;
+        const day = storedDates[i].selected_dates;
         
         //se le date sono registrate disponibili (1) a db, vuol dire che l'utente non e' MAI DISPONIBILE.
         //caselle di verdi, altrimenti caselle rosse
         
-        if (intersectionDates[i].is_available === 1) {
+        if (storedDates[i].is_available === 1) {
 
           $(`.day[date^=${day}]`).css("background-color", "lightgreen");
           
@@ -153,15 +152,6 @@ $(function () {
       $(".day").on("click", function (e) {
         e.preventDefault();
 
-          //date da pushare in un array statico (come oggetto) per colorare le caselle al cambio mese (solo front)
-          const extDate = {
-            "selected_dates" : $(this).attr("date"),
-            "is_available" : !availability === false ? 0 : 1,
-          }
-          const objDate = new Object(extDate);
-          console.log(objDate);
-          dates.push(objDate);
-          
           //date interna da usare
           let date = $(this).attr("date");
           
@@ -191,6 +181,8 @@ $(function () {
 
             response = JSON.parse(response);
 
+            storedDates = response.stored_dates;
+
             switch (response.is_available) {
               case true:
 
@@ -209,13 +201,14 @@ $(function () {
               case false:
 
                 //mettere valore rgb perche' come stringa non lo prende..... (colore: lightcoral)
-                if ( $(`.day[date^=${response.date}]`).css("background-color") === "rgb(240, 128, 128)" ) {
-                      
-                  $(`.day[date^=${response.date}]`).css("background-color", "lightgreen");
-                  
-                } else {
-
+                if ( $(`.day[date^=${response.date}]`).css("background-color") === "rgb(144, 238, 144)" ) {
+                  // console.log('dentro if');
                   $(`.day[date^=${response.date}]`).css("background-color", "lightcoral");
+                  
+                } else if ($(`.day[date^=${response.date}]`).css("background-color") === "rgb(240, 128, 128)") {
+                  // console.log('dentro else');
+
+                  $(`.day[date^=${response.date}]`).css("background-color", "lightgreen");
                 }
     
               break;
@@ -223,7 +216,7 @@ $(function () {
             default:
                 break;
             }
-            
+          return storedDates
           });
 
       });
@@ -245,6 +238,7 @@ $(function () {
     //UTILITIES FUNCTIONS:
     //check per colori caselle predefiniti e specifici:
     //FALSE se ogni elemento dell'array in ingresso e' diverso dal successivo e la sua disponibilita' e' 1 
+    //se e' 1, e' stata salvata la disponibilita', quindi tutto il resto dei giorni non sara' disponibile.
     function identical(array) {
       for(var i = 0; i < array.length - 1; i++) {
           if(array[i] !== array[i+1] && array[i].is_available !== 0) {
@@ -434,7 +428,33 @@ $(function () {
 
     $("#available").on("click", function () {
         availability = true;
-        alert("yes");
+
+        var settings1 = {
+          "method": "DELETE",
+          "type": "POST",
+          "url": "availabilities",
+          "timeout": 0,
+          "headers": {
+          "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
+          },
+          "processData": false,
+          "mimeType": "json",
+          "contentType": false,
+          "data": {}
+
+        }
+
+        $.ajax(settings1).done(function (response) {
+
+          response = JSON.parse(response);
+
+          alert("deleted");
+        }).fail(function(data, textStatus, xhr) {
+        
+          alert("error");
+
+        
+        })
     });
 
     $("#unavailable").on("click", function () {
