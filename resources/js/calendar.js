@@ -3,9 +3,12 @@ const { intersection } = require("lodash");
 
 $(function () {
     
-  let availability = window.availability = true; //default sempre disponibile
   let storedDates = window.storedDates; //date salvate a db, verra' aggiornato dopo la chiamata ajax
-
+  let availability = window.availability;
+  if (identical(storedDates) === false) {
+    let availability = window.availability = false;
+  }; //default sempre disponibile
+  // console.log(availability);
     // let storedDates = $('#stored_dates');
     //per cambiare anno devo cambiare la variabile t
     // console.log(t+1); ogni volta che premo il pulsantino di increment_year
@@ -150,6 +153,7 @@ $(function () {
       //ONCLICK Salva in array i giorni cliccati e chiamata ajax per salvare la data
       $(".day").on("click", function (e) {
         e.preventDefault();
+        console.log(availability);
 
           //date interna da usare
           let date = $(this).attr("date");
@@ -179,13 +183,14 @@ $(function () {
           $.ajax(settings1).done(function (response) {
 
             response = JSON.parse(response);
+            console.log(response);
 
             storedDates = response.stored_dates;
 
             switch (response.is_available) {
               case true:
 
-                if ( $(`.day[date^=${response.date}]`).css("background-color") === "lightcoral") {
+                if ( $(`.day[date^=${response.date}]`).css("background-color") === "rgb(240, 128, 128)") {
 
                   $(`.day[date^=${response.date}]`).css("background-color", "lightgreen");
 
@@ -199,7 +204,7 @@ $(function () {
 
               case false:
 
-                //mettere valore rgb perche' come stringa non lo prende..... (colore: lightcoral)
+                //mettere valore rgb perche' come stringa non lo prende..... (colore: lightgreen)
                 if ( $(`.day[date^=${response.date}]`).css("background-color") === "rgb(144, 238, 144)" ) {
                   // console.log('dentro if');
                   $(`.day[date^=${response.date}]`).css("background-color", "lightcoral");
@@ -427,42 +432,54 @@ $(function () {
 
     $("#available").on("click", function () {
         availability = true;
-
-        var settings1 = {
-          "method": "DELETE",
-          "type": "POST",
-          "url": "availabilities",
-          "timeout": 0,
-          "headers": {
-          "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
-          },
-          "processData": false,
-          "mimeType": "json",
-          "contentType": false,
-          "data": {}
-
-        }
-
-        $.ajax(settings1).done(function (response) {
-
-          response = JSON.parse(response);
-
-          alert("deleted");
-        }).fail(function(data, textStatus, xhr) {
-        
-          alert("error");
-
-        
-        })
+        days.css("background-color", "lightgreen");
+        deleteRows();
     });
+
+
+
+
+
 
     $("#unavailable").on("click", function () {
         //1. Cambia availability da tue a false
         availability = false;
+        days.css("background-color", "lightcoral");
+        deleteRows();
 
         //2. chiamata ajax forceDelete
         //2. se success, cambia colore di tutte le caselle
 
-        days.css("background-color", "lightcoral");
     });
+
+
+    function deleteRows() {
+      var settings = {
+        "method": "DELETE",
+        "type": "POST",
+        "url": "/delete",
+        "timeout": 0,
+        "headers": {
+        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
+        },
+        "processData": false,
+        "mimeType": "json",
+        "contentType": false,
+        "data": {}
+
+      }
+
+      $.ajax(settings).done(function (response) {
+
+        response = JSON.parse(response);
+
+        alert("ok");
+      }).fail(function(data, textStatus, xhr) {
+      
+        console.log(data);
+
+      
+      });
+
+    }
 });

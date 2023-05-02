@@ -49713,9 +49713,13 @@ var _require = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jqu
 var _require2 = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js"),
   intersection = _require2.intersection;
 $(function () {
-  var availability = window.availability = true; //default sempre disponibile
   var storedDates = window.storedDates; //date salvate a db, verra' aggiornato dopo la chiamata ajax
-
+  var availability = window.availability;
+  if (identical(storedDates) === false) {
+    var _availability = window.availability = false;
+  }
+  ; //default sempre disponibile
+  // console.log(availability);
   // let storedDates = $('#stored_dates');
   //per cambiare anno devo cambiare la variabile t
   // console.log(t+1); ogni volta che premo il pulsantino di increment_year
@@ -49830,6 +49834,7 @@ $(function () {
     //ONCLICK Salva in array i giorni cliccati e chiamata ajax per salvare la data
     $(".day").on("click", function (e) {
       e.preventDefault();
+      console.log(availability);
 
       //date interna da usare
       var date = $(this).attr("date");
@@ -49854,17 +49859,18 @@ $(function () {
       };
       $.ajax(settings1).done(function (response) {
         response = JSON.parse(response);
+        console.log(response);
         storedDates = response.stored_dates;
         switch (response.is_available) {
           case true:
-            if ($(".day[date^=".concat(response.date, "]")).css("background-color") === "lightcoral") {
+            if ($(".day[date^=".concat(response.date, "]")).css("background-color") === "rgb(240, 128, 128)") {
               $(".day[date^=".concat(response.date, "]")).css("background-color", "lightgreen");
             } else {
               $(".day[date^=".concat(response.date, "]")).css("background-color", "lightcoral");
             }
             break;
           case false:
-            //mettere valore rgb perche' come stringa non lo prende..... (colore: lightcoral)
+            //mettere valore rgb perche' come stringa non lo prende..... (colore: lightgreen)
             if ($(".day[date^=".concat(response.date, "]")).css("background-color") === "rgb(144, 238, 144)") {
               // console.log('dentro if');
               $(".day[date^=".concat(response.date, "]")).css("background-color", "lightcoral");
@@ -50035,10 +50041,24 @@ $(function () {
   var days = $("#calendar_content").find(".day");
   $("#available").on("click", function () {
     availability = true;
-    var settings1 = {
+    days.css("background-color", "lightgreen");
+    deleteRows();
+  });
+  $("#unavailable").on("click", function () {
+    //1. Cambia availability da tue a false
+    availability = false;
+    days.css("background-color", "lightcoral");
+    deleteRows();
+
+    //2. chiamata ajax forceDelete
+    //2. se success, cambia colore di tutte le caselle
+  });
+
+  function deleteRows() {
+    var settings = {
       "method": "DELETE",
       "type": "POST",
-      "url": "availabilities",
+      "url": "/delete",
       "timeout": 0,
       "headers": {
         "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
@@ -50048,22 +50068,13 @@ $(function () {
       "contentType": false,
       "data": {}
     };
-    $.ajax(settings1).done(function (response) {
+    $.ajax(settings).done(function (response) {
       response = JSON.parse(response);
-      alert("deleted");
+      alert("ok");
     }).fail(function (data, textStatus, xhr) {
-      alert("error");
+      console.log(data);
     });
-  });
-  $("#unavailable").on("click", function () {
-    //1. Cambia availability da tue a false
-    availability = false;
-
-    //2. chiamata ajax forceDelete
-    //2. se success, cambia colore di tutte le caselle
-
-    days.css("background-color", "lightcoral");
-  });
+  }
 });
 
 /***/ }),
