@@ -16,14 +16,14 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Route::get('/', function () {
-//     return view('welcome');
+//     return route('login');
 // });
 
 
-// Route::group(['middleware' => ['auth']], function () { 
-    Auth::routes();
+Auth::routes();
+Route::group(['middleware' => ['auth']], function () { 
     Route::post('/store', 'AvailabilityController@store');
     Route::delete('/delete', 'AvailabilityController@destroy');
     Route::resource('availabilities', 'AvailabilityController');
-    Route::get('/home', 'HomeController@index')->name('home');
-// });
+    Route::get('/', 'HomeController@index')->name('home');
+});
