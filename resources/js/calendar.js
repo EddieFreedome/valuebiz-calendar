@@ -225,6 +225,53 @@ $(function () {
 
       });
 
+      let days = $("#calendar_content").find(".day");
+
+      $("#available").on("click", function () {
+          availability = true;
+          days.css("background-color", "lightgreen");
+          deleteRows();
+      });
+  
+      $("#unavailable").on("click", function () {
+          //1. Cambia availability da tue a false
+          availability = false;
+          days.css("background-color", "lightcoral");
+          deleteRows();
+  
+          //2. chiamata ajax forceDelete
+          //2. se success, cambia colore di tutte le caselle
+  
+      });
+  
+      function deleteRows() {
+        var settings = {
+          "method": "DELETE",
+          "type": "POST",
+          "url": "/delete",
+          "timeout": 0,
+          "headers": {
+          "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
+          },
+          "processData": false,
+          "mimeType": "json",
+          "contentType": false,
+          "data": {}
+  
+        }
+  
+        $.ajax(settings).done(function (response) {
+  
+          response = JSON.parse(response);
+  
+          alert("ok");
+        }).fail(function(data, textStatus, xhr) {
+        
+          // console.log(data);
+        });
+  
+      }
+  
     }
 
     //STEP #1a [OK] (viene invocala all'inizio del codice) - Crea giorni della settimana
@@ -251,6 +298,7 @@ $(function () {
       }
       return true;
     }
+
     //formattazione data
     function formatDate(date) {
       var d = new Date(date),
@@ -428,58 +476,4 @@ $(function () {
     });
 
 
-    let days = $("#calendar_content").find(".day");
-
-    $("#available").on("click", function () {
-        availability = true;
-        days.css("background-color", "lightgreen");
-        deleteRows();
-    });
-
-
-
-
-
-
-    $("#unavailable").on("click", function () {
-        //1. Cambia availability da tue a false
-        availability = false;
-        days.css("background-color", "lightcoral");
-        deleteRows();
-
-        //2. chiamata ajax forceDelete
-        //2. se success, cambia colore di tutte le caselle
-
-    });
-
-
-    function deleteRows() {
-      var settings = {
-        "method": "DELETE",
-        "type": "POST",
-        "url": "/delete",
-        "timeout": 0,
-        "headers": {
-        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
-        },
-        "processData": false,
-        "mimeType": "json",
-        "contentType": false,
-        "data": {}
-
-      }
-
-      $.ajax(settings).done(function (response) {
-
-        response = JSON.parse(response);
-
-        alert("ok");
-      }).fail(function(data, textStatus, xhr) {
-      
-        console.log(data);
-
-      
-      });
-
-    }
 });
