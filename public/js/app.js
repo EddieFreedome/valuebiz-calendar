@@ -49714,10 +49714,9 @@ var _require2 = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.
   intersection = _require2.intersection;
 $(function () {
   var availability = window.availability = true; //default sempre disponibile
-  var storedDates = window.storedDates; //default sempre disponibile
-  // let storedDates = $('#stored_dates');
-  console.log(storedDates);
+  var storedDates = window.storedDates; //date salvate a db, verra' aggiornato dopo la chiamata ajax
 
+  // let storedDates = $('#stored_dates');
   //per cambiare anno devo cambiare la variabile t
   // console.log(t+1); ogni volta che premo il pulsantino di increment_year
 

@@ -4,10 +4,9 @@ const { intersection } = require("lodash");
 $(function () {
     
   let availability = window.availability = true; //default sempre disponibile
-  let storedDates = window.storedDates; //default sempre disponibile
-    // let storedDates = $('#stored_dates');
-  console.log(storedDates);
+  let storedDates = window.storedDates; //date salvate a db, verra' aggiornato dopo la chiamata ajax
 
+    // let storedDates = $('#stored_dates');
     //per cambiare anno devo cambiare la variabile t
     // console.log(t+1); ogni volta che premo il pulsantino di increment_year
 
